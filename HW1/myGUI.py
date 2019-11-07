@@ -38,6 +38,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.sebelxButton.clicked.connect(self.sobel_x)
         self.ui.sebelyButton.clicked.connect(self.sobel_y)
         self.ui.magButton.clicked.connect(self.magnitude)
+        self.ui.resultButton_2.clicked.connect(self.result_50)
 
     def load_image(self):
         self.img_dog = cv2.imread(dog)
@@ -45,13 +46,10 @@ class MainWindow(QtWidgets.QMainWindow):
         
     def color_conversion(self):
         self.img_color = cv2.imread(color)
-        self.red = self.img_color[:,:,2]
-        self.green = self.img_color[:,:,1]
-        self.blue = self.img_color[:,:,0]
-        self.img_color[:,:,1] = self.red
-        self.img_color[:,:,2] = self.blue
-        self.img_color[:,:,1] = self.green
-        cv2.imshow('rgb',self.img_color)
+        self.img_color[:,:,[0,1,2]] = self.img_color[:,:,[1,2,0]]
+        # self.img_color[:,:,1] = self.img_color[:,:,1]
+        # self.img_color[:,:,0] = self.img_color[:,:,2]
+        cv2.imshow('color', self.img_color )
 
     def flipping(self):
         self.img_dog = cv2.imread(dog)
@@ -146,11 +144,16 @@ class MainWindow(QtWidgets.QMainWindow):
             plt.matshow(curr_img, cmap=plt.get_cmap('gray'))
             plt.title("" + str(i + 1) + "th Training Data " 
                                     + "Label is " + str(curr_label))
-        plt.show()    
+        plt.show()
+
+    def result_50(self):
+        self.img_acc = cv2.imread('acc.png')
+        self.img_loss = cv2.imread('loss.png')
+        cv2.imshow('acc', self.img_acc)
+        cv2.imshow('loss', self.img_loss)    
     
     def predict(self):
         self.result = np.zeros(10)
-        self.result[4] = 20
         self.num = ('0','1','2','3','4','5','6','7','8','9')
         self.y_pos = np.arange(len(self.num))
         self.model.load()
@@ -159,9 +162,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.index = int(self.ui.lineEdit_index.text())
         self.image = self.model.x_test[self.index,:,:,0]
         print(self.model.x_test.shape)
+        plt.figure()
         plt.imshow(self.image, cmap='binary')
         self.Y_pred = self.model.predict(self.image)
-        print(np.argmax(self.Y_pred))
+        self.result[np.argmax(self.Y_pred)] = 1
+        plt.figure()
         plt.bar(self.y_pos, self.result, align='center', alpha=0.5)
         plt.xticks(self.y_pos, self.num)
 

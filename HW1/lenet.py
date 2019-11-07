@@ -82,7 +82,7 @@ class my_model(object):
         return self.y
 
     def load_weight(self):
-        self.model.load_weights('my_model.h5')
+        self.model.load_weights('my_model_50.h5')
 
 class Histories(Callback):
 
